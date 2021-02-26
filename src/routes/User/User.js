@@ -39,7 +39,50 @@ route.post("/login", async (req, res, next) => {
 });
 
 // se lo user e' autorizzato, possiamo portarto su questo route altrimenti lo reindirizziamo
-route.get("/me/:query", async (req, res, next) => {
+route.get("/me", async (req, res, next) => {
+  try {
+    // qui faremo il fetch che poi spediremo al frontend e :id corrispondera' a quello che poi andiamo a
+    // specificare nel url
+
+    const token = req.headers.authorization.replace("Bearer ", "");
+    const decode = await verifyJWT(token);
+    console.log(decode);
+
+    const user = await User.findById(decode._id);
+
+    console.log(user);
+    res.status(201).send("CONSOLE LOGGED REQ");
+  } catch (error) {
+    console.log(error);
+  }
+});
+
+route.post("/me/addFavorite", async (req, res, next) => {
+  try {
+    // qui faremo il fetch che poi spediremo al frontend e :id corrispondera' a quello che poi andiamo a
+    // specificare nel url
+
+    const token = req.headers.authorization.replace("Bearer ", "");
+    const decode = await verifyJWT(token);
+    console.log(decode);
+
+    // const user = await User.findById(decode._id);
+
+    const user = await User.findOneAndUpdate(decode._id, {
+      $addToSet: { favCities: "test" },
+    });
+
+    // FIXARE LA ROBA EXPIRUTA
+
+    // { $addToSet: { <field1>: <value1>, ... } }
+    console.log(user);
+    res.status(201).send("CONSOLE LOGGED REQ");
+  } catch (error) {
+    console.log(error);
+  }
+});
+
+route.get("/me/removeFavorite", async (req, res, next) => {
   try {
     // qui faremo il fetch che poi spediremo al frontend e :id corrispondera' a quello che poi andiamo a
     // specificare nel url
