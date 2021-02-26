@@ -39,7 +39,7 @@ route.post("/login", async (req, res, next) => {
 });
 
 // se lo user e' autorizzato, possiamo portarto su questo route altrimenti lo reindirizziamo
-route.get("/me", async (req, res, next) => {
+route.get("/me/:query", async (req, res, next) => {
   try {
     // qui faremo il fetch che poi spediremo al frontend e :id corrispondera' a quello che poi andiamo a
     // specificare nel url
