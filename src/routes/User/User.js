@@ -30,7 +30,6 @@ route.post("/login", async (req, res, next) => {
     // ora generiamo i token
     const { refreshToken, token } = await authenticate(userFound);
 
-    console.log("this is decoded user--->", decode);
     // spedisco il token
     res.status(200).send({ token, refreshToken });
   } catch (error) {
@@ -68,11 +67,16 @@ route.post("/me/addFavorite", async (req, res, next) => {
 
     // const user = await User.findById(decode._id);
 
-    const user = await User.findOneAndUpdate(decode._id, {
-      $addToSet: { favCities: "test" },
-    });
-
-    // FIXARE LA ROBA EXPIRUTA
+    const user = await User.findOneAndUpdate(
+      decode._id,
+      {
+        $addToSet: { favCities: "test3" },
+      },
+      {
+        useFindAndModify: false,
+        new: true,
+      }
+    );
 
     // { $addToSet: { <field1>: <value1>, ... } }
     console.log(user);
@@ -82,7 +86,7 @@ route.post("/me/addFavorite", async (req, res, next) => {
   }
 });
 
-route.get("/me/removeFavorite", async (req, res, next) => {
+route.post("/me/removeFavorite", async (req, res, next) => {
   try {
     // qui faremo il fetch che poi spediremo al frontend e :id corrispondera' a quello che poi andiamo a
     // specificare nel url
@@ -91,7 +95,43 @@ route.get("/me/removeFavorite", async (req, res, next) => {
     const decode = await verifyJWT(token);
     console.log(decode);
 
-    const user = await User.findById(decode._id);
+    const user = await User.findOneAndUpdate(
+      decode._id,
+      {
+        $pull: { favCities: "test" },
+      },
+      {
+        useFindAndModify: false,
+        new: true,
+      }
+    );
+
+    console.log(user);
+    res.status(201).send("CONSOLE LOGGED REQ");
+  } catch (error) {
+    console.log(error);
+  }
+});
+
+route.get("/me/weather", async (req, res, next) => {
+  try {
+    // qui faremo il fetch che poi spediremo al frontend e :id corrispondera' a quello che poi andiamo a
+    // specificare nel url
+
+    const token = req.headers.authorization.replace("Bearer ", "");
+    const decode = await verifyJWT(token);
+    console.log(decode);
+
+    const user = await User.findOneAndUpdate(
+      decode._id,
+      {
+        $pull: { favCities: "test" },
+      },
+      {
+        useFindAndModify: false,
+        new: true,
+      }
+    );
 
     console.log(user);
     res.status(201).send("CONSOLE LOGGED REQ");
