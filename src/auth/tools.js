@@ -1,5 +1,36 @@
 const jwt = require("jsonwebtoken");
 const User = require("../routes/User/schema");
+const fetch = require("node-fetch");
+
+const getCurrentForcast = async (lat, lon) => {
+  try {
+    const response = await fetch(
+      `https://api.openweathermap.org/data/2.5/onecall?lat=${lat}&lon=${lon}&units=metric&exclude=minute,hourly&appid=f10ab2fb813b0bacacb830ce8476f281`
+    );
+
+    if (response.ok) {
+      const data = await response.json();
+      return data;
+    }
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+const getWeather = async (search) => {
+  try {
+    const response = await fetch(
+      `https://api.openweathermap.org/data/2.5/weather?q=${search}&units=metric&appid=f10ab2fb813b0bacacb830ce8476f281`
+    );
+
+    if (response.ok) {
+      const data = await response.json();
+      return data;
+    }
+  } catch (error) {
+    console.log(error);
+  }
+};
 
 const generateJWT = (payload) =>
   new Promise((res, rej) =>
@@ -90,4 +121,10 @@ const refreshToken = async (oldRefreshToken) => {
   return { token: newAccessToken, refreshToken: newRefreshToken };
 };
 
-module.exports = { authenticate, verifyJWT, refreshToken };
+module.exports = {
+  authenticate,
+  verifyJWT,
+  refreshToken,
+  getWeather,
+  getCurrentForcast,
+};

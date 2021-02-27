@@ -1,6 +1,12 @@
 const express = require("express");
 const mongoose = require("mongoose");
-const { authenticate, verifyJWT, refreshTokens } = require("../../auth/tools");
+const {
+  authenticate,
+  verifyJWT,
+  refreshTokens,
+  getWeather,
+  getCurrentForcast,
+} = require("../../auth/tools");
 const { authorize } = require("../../auth/middleware");
 
 const User = require("./schema");
@@ -56,6 +62,8 @@ route.get("/me", async (req, res, next) => {
   }
 });
 
+// aggiungre il route dove SOLO auteticati portremmo aggiungere o cancellare delle citta' preferite nell'array
+// sul nostro profilo
 route.post("/me/addFavorite", async (req, res, next) => {
   try {
     // qui faremo il fetch che poi spediremo al frontend e :id corrispondera' a quello che poi andiamo a
@@ -86,6 +94,8 @@ route.post("/me/addFavorite", async (req, res, next) => {
   }
 });
 
+// aggiungre il route dove SOLO auteticati portremmo aggiungere o cancellare delle citta' preferite nell'array
+// sul nostro profilo
 route.post("/me/removeFavorite", async (req, res, next) => {
   try {
     // qui faremo il fetch che poi spediremo al frontend e :id corrispondera' a quello che poi andiamo a
@@ -113,7 +123,7 @@ route.post("/me/removeFavorite", async (req, res, next) => {
   }
 });
 
-route.get("/me/weather", async (req, res, next) => {
+route.get("/me/weather/:id", async (req, res, next) => {
   try {
     // qui faremo il fetch che poi spediremo al frontend e :id corrispondera' a quello che poi andiamo a
     // specificare nel url
@@ -122,25 +132,34 @@ route.get("/me/weather", async (req, res, next) => {
     const decode = await verifyJWT(token);
     console.log(decode);
 
-    const user = await User.findOneAndUpdate(
-      decode._id,
-      {
-        $pull: { favCities: "test" },
-      },
-      {
-        useFindAndModify: false,
-        new: true,
-      }
-    );
+    const data = await getWeather(req.params.id);
 
-    console.log(user);
-    res.status(201).send("CONSOLE LOGGED REQ");
+    res.status(200).send(data);
   } catch (error) {
     console.log(error);
   }
 });
 
-// aggiungre il route dove SOLO auteticati portremmo aggiungere o cancellare delle citta' preferite nell'array
-// sul nostro profilo
+route.get("/me/currentforecast/:id", async (req, res, next) => {
+  try {
+    // qui faremo il fetch che poi spediremo al frontend e :id corrispondera' a quello che poi andiamo a
+    // specificare nel url
+
+    const token = req.headers.authorization.replace("Bearer ", "");
+    const decode = await verifyJWT(token);
+    console.log(decode);
+
+    const data = await getWeather(req.params.id);
+
+    const currentForcast = await getCurrentForcast(
+      data.coord.lat,
+      data.coord.lon
+    );
+
+    res.status(200).send(currentForcast);
+  } catch (error) {
+    console.log(error);
+  }
+});
 
 module.exports = route;
