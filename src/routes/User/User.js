@@ -147,6 +147,8 @@ route.get("/me/currentforecast/:id", async (req, res, next) => {
 
     const token = req.headers.authorization.replace("Bearer ", "");
     const decode = await verifyJWT(token);
+    if (!decode) throw new Error("Invalid token fucj");
+
     console.log(decode);
 
     const data = await getWeather(req.params.id);
